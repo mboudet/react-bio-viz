@@ -21,7 +21,7 @@ function TreeBranch({ node, shadeBranchBySupport }: TreeNodeProps) {
   );
 }
 
-function TipNode({ node, colorFunction, fontSize, alignTips }: TreeNodeProps) {
+function TipNode({ node, colorFunction, fontSize, alignTips, existingGenes }: TreeNodeProps) {
   const {
     data: { name },
     x,
@@ -30,6 +30,8 @@ function TipNode({ node, colorFunction, fontSize, alignTips }: TreeNodeProps) {
   const nodeY = node.y + 4;
   const colorSeed =
     typeof colorFunction !== "undefined" ? colorFunction(node) : name;
+
+  const value = name in existingGenes ? existingGenes[name] : name
   return (
     <g className="tipnode">
       <title>{name}</title>
@@ -51,7 +53,7 @@ function TipNode({ node, colorFunction, fontSize, alignTips }: TreeNodeProps) {
         r="4.5"
       />
       <text x={textY} y={x + 4} className={css({fontFamily: 'sans-serif', fontSize })}>
-        {name}
+        {value}
       </text>
     </g>
   );
@@ -60,7 +62,7 @@ function TipNode({ node, colorFunction, fontSize, alignTips }: TreeNodeProps) {
 export type NodeFn = (arg0: TreeNodeProps) => JSX.Element;
 export type colorFn = (node: Node) => string;
 
-function InternalNode({ node, fontSize, showSupportValues }: TreeNodeProps) {
+function InternalNode({ node, fontSize, showSupportValues, existingGenes }: TreeNodeProps) {
   if (!showSupportValues) return <></>
   const { data, x, y } = node;
   const { name } = data;
@@ -132,6 +134,7 @@ export default function PhyloTree({
   alignTips = true,
   tipNode = TipNode,
   internalNode = InternalNode,
+  existingGenes = {}
 }: {
   tree: Tree;
   height?: number;
@@ -144,6 +147,7 @@ export default function PhyloTree({
   alignTips?: boolean;
   tipNode?: NodeFn;
   internalNode?: NodeFn;
+  existingGenes?: object;
 }): JSX.Element {
   const margin = {
     top: 10,
@@ -191,6 +195,7 @@ export default function PhyloTree({
                   showSupportValues={showSupportValues}
                   colorFunction={colorFunction}
                   alignTips={alignTips}
+                  existingGenes={existingGenes}
                 />
               </React.Fragment>
             );
